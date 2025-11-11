@@ -1,12 +1,14 @@
 import "dotenv/config";
 
+// 检查必需的环境变量（但不阻止启动）
 const requiredEnv = ["OPENAI_API_KEY", "DATABASE_URL"] as const;
 
 const missing = requiredEnv.filter(
   (key) => !process.env[key] || process.env[key]?.trim() === ""
 );
 
-export const isOpenAIConfigured = missing.length === 0;
+export const isOpenAIConfigured = 
+  process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== "";
 
 export const config = {
   port: Number(process.env.PORT ?? 4000),

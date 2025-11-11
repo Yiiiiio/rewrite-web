@@ -50,17 +50,25 @@ app.use(
   }
 );
 
-app.listen(config.port, async () => {
+// Railway 会自动设置 PORT 环境变量
+const port = process.env.PORT ? Number(process.env.PORT) : config.port;
+
+app.listen(port, "0.0.0.0", async () => {
   logger.info(
-    { port: config.port, env: config.env },
+    { port, env: config.env },
     "Rewrite backend server is running"
   );
   
-  // 测试数据库连接
-  const dbConnected = await testDatabaseConnection();
-  if (!dbConnected) {
-    logger.error("数据库连接失败，请检查 DATABASE_URL 环境变量");
-  }
+  // 异步测试数据库连接（不阻塞启动）
+  testDatabaseConnection().then((dbConnected) => {
+    if (!dbConnected) {
+      logger.warn("数据库连接失败，请检查 DATABASE_URL 环境变量。某些功能可能不可用。");
+    } else {
+      logger.info("数据库连接成功");
+    }
+  }).catch((error) => {
+    logger.error({ error }, "数据库连接测试出错");
+  });
 
   const missingEnvMessage = reportMissingEnv();
   if (missingEnvMessage) {

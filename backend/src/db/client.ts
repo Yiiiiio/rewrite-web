@@ -33,6 +33,12 @@ export function getPrismaClient(): PrismaClient {
 // 测试数据库连接
 export async function testDatabaseConnection(): Promise<boolean> {
   try {
+    // 检查 DATABASE_URL 是否存在
+    if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "") {
+      logger.warn("DATABASE_URL 环境变量未设置，数据库功能将不可用");
+      return false;
+    }
+    
     const client = getPrismaClient();
     await client.$queryRaw`SELECT 1`;
     logger.info("Database connection successful");
