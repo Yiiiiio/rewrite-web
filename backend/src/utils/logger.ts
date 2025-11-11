@@ -1,17 +1,26 @@
 import pino from "pino";
 import { config } from "../config";
 
+// 确保日志在生产环境也能正常工作
 export const logger = pino({
   level: config.logLevel,
-  transport:
-    config.env === "development"
-      ? {
+  ...(config.env === "development"
+    ? {
+        transport: {
           target: "pino-pretty",
           options: {
             colorize: true,
             translateTime: "SYS:standard"
           }
         }
-      : undefined
+      }
+    : {
+        // 生产环境使用 JSON 格式
+        formatters: {
+          level: (label) => {
+            return { level: label };
+          }
+        }
+      })
 });
 
