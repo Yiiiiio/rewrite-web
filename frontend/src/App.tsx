@@ -16,9 +16,9 @@ export default function App() {
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <h1>学术原创性提升平台 · 改写工作台</h1>
+          <h1>Paperrewrite</h1>
           <p className="app-subtitle">
-            选择改写级别，输入原文后获取符合合规要求的改写建议。
+            AI 论文改写工具 - 选择改写级别，输入原文后获取符合合规要求的改写建议。
           </p>
         </div>
         <span className="badge beta">Beta</span>
