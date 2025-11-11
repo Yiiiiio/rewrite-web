@@ -20,7 +20,7 @@ rewriteRouter.post("/preview", async (request, response) => {
     // 创建任务记录
     const taskId = await createRewriteTask({
       userId,
-      originalText: payload.text,
+      originalText: payload.originalText,
       level: payload.level,
       params: {
         temperature: payload.temperature,

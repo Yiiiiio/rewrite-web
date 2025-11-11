@@ -57,7 +57,9 @@ export function RewriteWorkspace({
             <h2>改写结果</h2>
             {rewriteResult && (
               <div className="result-meta">
-                <span>任务 ID: {rewriteResult.taskId}</span>
+                {rewriteResult.taskId && (
+                  <span>任务 ID: {rewriteResult.taskId}</span>
+                )}
                 <span>耗时: {rewriteResult.metrics.latencyMs} ms</span>
                 <span>字数: {rewriteResult.metrics.wordCount}</span>
               </div>
@@ -67,7 +69,7 @@ export function RewriteWorkspace({
             {isLoading && <Spinner />}
             {!isLoading && rewriteResult && (
               <>
-                <pre className="result-text">{rewriteResult.result}</pre>
+                <pre className="result-text">{rewriteResult.rewrittenText}</pre>
                 {rewriteResult.warnings.length > 0 && (
                   <ul className="warning-list">
                     {rewriteResult.warnings.map((warning) => (

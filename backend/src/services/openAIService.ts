@@ -28,9 +28,9 @@ export async function performRewrite(
   }
 
   const prompt = buildPrompt(payload);
-  const response = await openai.responses.create({
+  const response = await openai.chat.completions.create({
     model: config.openAIModel,
-    input: [
+    messages: [
       {
         role: "system",
         content:
@@ -42,21 +42,22 @@ export async function performRewrite(
       }
     ],
     temperature: payload.temperature ?? 0.4,
-    max_output_tokens: 1024
+    max_tokens: 2048
   });
 
-  const text =
-    response.output_text?.trim() ??
-    response.output?.[0]?.content?.[0]?.text ??
-    "";
+  const text = response.choices[0]?.message?.content?.trim() ?? "";
 
   return {
-    taskId: response.id,
-    result: text,
+    rewrittenText: text,
     warnings: [],
+    modelMeta: {
+      model: config.openAIModel,
+      tokens: response.usage?.total_tokens,
+      latency: Date.now() - start
+    },
     metrics: {
       wordCount: text.split(/\s+/).filter(Boolean).length,
-      estimatedTokens: Math.ceil(text.length / 4),
+      estimatedTokens: response.usage?.total_tokens ?? Math.ceil(text.length / 4),
       latencyMs: Date.now() - start
     }
   };
@@ -103,9 +104,12 @@ function mockRewrite(payload: RewriteRequestBody): RewriteResult {
     .join("\n")}`;
 
   return {
-    taskId: `mock-${Date.now()}`,
-    result: resultText,
+    rewrittenText: resultText,
     warnings: ["示例输出仅用于前端联调，非真实模型结果。"],
+    modelMeta: {
+      model: "mock",
+      latency: 0
+    },
     metrics: {
       wordCount: resultText.split(/\s+/).filter(Boolean).length,
       estimatedTokens: Math.ceil(resultText.length / 4),

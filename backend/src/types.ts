@@ -11,10 +11,24 @@ export const rewriteRequestSchema = z.object({
 
 export type RewriteRequestBody = z.infer<typeof rewriteRequestSchema>;
 
+export type RewriteLevel = "light" | "balance" | "heavy";
+
+export type RewriteParams = {
+  temperature?: number;
+  lengthPolicy?: "shorter" | "longer" | "keep";
+  protectedTerms?: string[];
+  keepCitations?: boolean;
+};
+
 export type RewriteResult = {
-  taskId: string;
-  result: string;
+  rewrittenText: string;
   warnings: string[];
+  modelMeta?: {
+    model: string;
+    tokens?: number;
+    cost?: number;
+    latency?: number;
+  };
   metrics: {
     wordCount: number;
     estimatedTokens: number;

@@ -48,12 +48,12 @@ export function useRewrite() {
       setHistory((current) =>
         [
           {
-            id: data.taskId,
+            id: data.taskId ?? `temp-${Date.now()}`,
             createdAt: new Date().toISOString(),
             level: variables.level,
             wordCount: data.metrics.wordCount,
             originalPreview: variables.originalText.slice(0, 120),
-            resultPreview: data.result.slice(0, 120)
+            resultPreview: data.rewrittenText.slice(0, 120)
           },
           ...current
         ].slice(0, 10)

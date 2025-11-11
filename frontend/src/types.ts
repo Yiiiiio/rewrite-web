@@ -10,9 +10,15 @@ export type RewriteRequestPayload = {
 };
 
 export type RewriteResponse = {
-  taskId: string;
-  result: string;
+  taskId?: string;
+  rewrittenText: string;
   warnings: string[];
+  modelMeta?: {
+    model: string;
+    tokens?: number;
+    cost?: number;
+    latency?: number;
+  };
   metrics: {
     wordCount: number;
     estimatedTokens: number;
