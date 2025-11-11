@@ -1,0 +1,193 @@
+// Prisma Schema - 根据需求文档定义的数据模型
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // 可改为 "mysql" 或 "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id             String   @id @default(uuid())
+  email          String?  @unique
+  phone          String?  @unique
+  roles          String[] @default(["user"]) // 角色：user, reviewer, org_admin, platform_admin
+  organizationId String?
+  settings       Json?    // 用户设置
+  mfaEnabled     Boolean  @default(false)
+  mfaSecret      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  documents      Document[]
+  rewritingTasks RewritingTask[]
+  billingUsages  BillingUsage[]
+  auditLogs      AuditLog[]
+
+  @@index([email])
+  @@index([organizationId])
+}
+
+// 文稿表
+model Document {
+  id         String   @id @default(uuid())
+  ownerId    String
+  title      String
+  discipline String?  // 学科分类
+  status     String   @default("draft") // draft, reviewing, published
+  content    String?  @db.Text // 当前内容（可选，大文本可存文件）
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  owner      User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  versions   DocumentVersion[]
+  suggestions Suggestion[]
+  similarityFindings SimilarityFinding[]
+  citations  Citation[]
+
+  @@index([ownerId])
+  @@index([status])
+}
+
+// 文稿版本表
+model DocumentVersion {
+  id          String   @id @default(uuid())
+  documentId  String
+  version     Int      @default(1)
+  diff        String?  @db.Text // 变更差异
+  snapshotUri String?  // 快照文件URI（S3路径）
+  meta        Json?    // { hash, size, ... }
+  createdAt   DateTime @default(now())
+
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, version])
+  @@index([documentId])
+}
+
+// 改写建议表
+model Suggestion {
+  id         String   @id @default(uuid())
+  documentId String?
+  sectionId  String?  // 段落/章节ID
+  type       String   // 建议类型：rewrite, citation, structure, etc.
+  content    String   @db.Text
+  rationale  String?  @db.Text // 原因说明
+  modelMeta  Json?    // 模型元数据：{ model, temperature, tokens, ... }
+  status     String   @default("pending") // pending, accepted, rejected
+  createdAt  DateTime @default(now())
+
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([status])
+}
+
+// 相似度发现表
+model SimilarityFinding {
+  id         String   @id @default(uuid())
+  documentId String
+  range      Json     // { start, end } 文本范围
+  score      Float    // 相似度分数
+  sourceRefs Json?    // 来源引用数组
+  notes      String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([score])
+}
+
+// 引用表
+model Citation {
+  id           String   @id @default(uuid())
+  documentId   String
+  style        String   // APA, MLA, Chicago, GB/T 7714
+  bibtex       String?  @db.Text
+  citationJson Json?    // 结构化引用数据
+  linkedRanges Json?    // 关联的文本范围
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  document     Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([style])
+}
+
+// 计费用量表
+model BillingUsage {
+  id         String   @id @default(uuid())
+  userId     String?
+  orgId      String?  // 组织ID
+  metricType String   // 指标类型：api_call, tokens, storage, export
+  amount     Float    // 数量
+  period     String   // 计费周期：2024-01
+  cost       Float    @default(0) // 费用
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([orgId])
+  @@index([period])
+}
+
+// 审计日志表
+model AuditLog {
+  id        String   @id @default(uuid())
+  actor     String   // 操作者ID
+  action    String   // 操作类型
+  target    String?  // 目标资源ID
+  payload   Json?    // 操作载荷
+  timestamp DateTime @default(now())
+
+  user      User?    @relation(fields: [actor], references: [id], onDelete: SetNull)
+
+  @@index([actor])
+  @@index([action])
+  @@index([timestamp])
+}
+
+// 改写任务表（核心功能）
+model RewritingTask {
+  id            String   @id @default(uuid())
+  userId        String?
+  originalText  String   @db.Text
+  rewrittenText String?  @db.Text
+  level         String   // light, balanced, heavy
+  params        Json?    // { temperature, lengthPolicy, protectedTerms, keepCitations }
+  status        String   @default("pending") // pending, processing, completed, failed
+  errorMessage  String?  @db.Text
+  modelMeta     Json?    // { model, tokens, cost, latency }
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Prompt模板表
+model PromptTemplate {
+  id        String   @id @default(uuid())
+  name      String   // 模板名称
+  version   Int      @default(1)
+  content   String   @db.Text // Prompt内容
+  level     String?  // 关联的改写级别：light, balanced, heavy
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, version])
+  @@index([name])
+  @@index([level])
+  @@index([isActive])
+}
+
