@@ -4,6 +4,7 @@ import { config, reportMissingEnv } from "./config";
 import { logger } from "./utils/logger";
 import { rewriteRouter } from "./routes/rewriteRoute";
 import { testDatabaseConnection } from "./db/client.js";
+import { initDatabase } from "./scripts/initDb.js";
 
 // 全局错误处理
 process.on("uncaughtException", (error) => {
@@ -72,33 +73,45 @@ app.use(
 // Railway 会自动设置 PORT 环境变量
 const port = process.env.PORT ? Number(process.env.PORT) : config.port;
 
-try {
-  app.listen(port, "0.0.0.0", () => {
-    logger.info(
-      { port, env: config.env },
-      "Rewrite backend server is running"
-    );
-    
-    // 异步测试数据库连接（不阻塞启动）
-    testDatabaseConnection().then((dbConnected) => {
-      if (!dbConnected) {
-        logger.warn("数据库连接失败，请检查 DATABASE_URL 环境变量。某些功能可能不可用。");
-      } else {
-        logger.info("数据库连接成功");
-      }
-    }).catch((error) => {
-      logger.error({ error }, "数据库连接测试出错");
-    });
-
-    const missingEnvMessage = reportMissingEnv();
-    if (missingEnvMessage) {
-      logger.warn(
-        `${missingEnvMessage}，当前将返回模拟改写结果，供前端联调使用。`
-      );
+// 启动服务器
+async function startServer() {
+  try {
+    // 在启动前尝试初始化数据库（不阻塞启动）
+    if (process.env.AUTO_INIT_DB !== "false") {
+      initDatabase().catch((error) => {
+        logger.warn({ error }, "数据库自动初始化失败，服务将继续启动");
+      });
     }
-  });
-} catch (error) {
-  logger.error({ error }, "Failed to start server");
-  process.exit(1);
+
+    app.listen(port, "0.0.0.0", () => {
+      logger.info(
+        { port, env: config.env },
+        "Rewrite backend server is running"
+      );
+      
+      // 异步测试数据库连接（不阻塞启动）
+      testDatabaseConnection().then((dbConnected) => {
+        if (!dbConnected) {
+          logger.warn("数据库连接失败，请检查 DATABASE_URL 环境变量。某些功能可能不可用。");
+        } else {
+          logger.info("数据库连接成功");
+        }
+      }).catch((error) => {
+        logger.error({ error }, "数据库连接测试出错");
+      });
+
+      const missingEnvMessage = reportMissingEnv();
+      if (missingEnvMessage) {
+        logger.warn(
+          `${missingEnvMessage}，当前将返回模拟改写结果，供前端联调使用。`
+        );
+      }
+    });
+  } catch (error) {
+    logger.error({ error }, "Failed to start server");
+    process.exit(1);
+  }
 }
+
+startServer();
 

@@ -12,6 +12,7 @@
     "build": "tsc -b",
     "start": "node dist/server.js",
     "postinstall": "prisma generate",
+    "deploy": "prisma generate && prisma db push --skip-generate && npm run build",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
