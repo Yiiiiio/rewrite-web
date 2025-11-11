@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import { config, isOpenAIConfigured } from "../config";
-import type { RewriteRequestBody, RewriteResult } from "../types";
+import { config, isOpenAIConfigured } from "../config.js";
+import type { RewriteRequestBody, RewriteResult } from "../types.js";
 
 const openai = isOpenAIConfigured
   ? new OpenAI({

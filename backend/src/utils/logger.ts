@@ -1,5 +1,5 @@
 import pino from "pino";
-import { config } from "../config";
+import { config } from "../config.js";
 
 // 确保日志在生产环境也能正常工作
 export const logger = pino({

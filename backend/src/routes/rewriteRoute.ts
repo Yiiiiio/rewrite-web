@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { rewriteRequestSchema } from "../types";
-import { performRewrite } from "../services/openAIService";
+import { rewriteRequestSchema } from "../types.js";
+import { performRewrite } from "../services/openAIService.js";
 import {
   createRewriteTask,
   updateRewriteTask,

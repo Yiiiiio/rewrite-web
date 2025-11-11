@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import { config, reportMissingEnv } from "./config";
-import { logger } from "./utils/logger";
-import { rewriteRouter } from "./routes/rewriteRoute";
+import { config, reportMissingEnv } from "./config.js";
+import { logger } from "./utils/logger.js";
+import { rewriteRouter } from "./routes/rewriteRoute.js";
 import { testDatabaseConnection } from "./db/client.js";
 import { initDatabase } from "./scripts/initDb.js";
 
