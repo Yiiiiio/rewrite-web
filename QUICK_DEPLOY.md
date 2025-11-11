@@ -6,8 +6,28 @@
 1. 访问 [railway.app](https://railway.app)，使用 GitHub 账号登录
 2. 点击 **"New Project"** → **"Deploy from GitHub repo"**
 3. 选择你的仓库 `Yiiiiio/rewrite-web`
-4. **重要**：在部署设置中，将 **Root Directory** 设置为 `backend`
-5. 点击 **"Deploy"**
+4. 点击 **"Deploy"**（先部署一次，然后设置根目录）
+
+### 1.1 设置 Root Directory（重要！）
+部署后，需要设置根目录为 `backend`：
+
+**方式 A：在项目设置中设置（推荐）**
+1. 在 Railway 项目页面，点击项目名称或右上角的 **"Settings"** 图标
+2. 在左侧菜单找到 **"Settings"** → **"Service"** 或 **"Build & Deploy"**
+3. 找到 **"Root Directory"** 或 **"Source Root"** 选项
+4. 输入 `backend`（不要带斜杠，不要带引号）
+5. 点击 **"Save"** 或 **"Update"**
+6. Railway 会自动触发重新部署
+
+**方式 B：在部署页面设置**
+1. 如果第一次部署失败（显示检测到多个目录），点击失败的部署
+2. 在部署详情页面，找到 **"Configure"** 或 **"Settings"** 按钮
+3. 在 **"Root Directory"** 中输入 `backend`
+4. 保存后重新部署
+
+**验证设置是否成功：**
+- 重新部署后，构建日志应该显示从 `backend/` 目录开始构建
+- 日志中应该能看到 `package.json` 在 `backend/` 目录下
 
 ### 2. 添加 PostgreSQL 数据库
 1. 在 Railway 项目页面，点击 **"+ New"**
