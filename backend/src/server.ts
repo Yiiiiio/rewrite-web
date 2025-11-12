@@ -28,16 +28,18 @@ logger.info({
 const app = express();
 
 // CORS 配置：允许 Vercel 前端域名
-const allowedOrigins = process.env.ALLOWED_ORIGINS
+const allowedOrigins = (process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
-  : ["http://localhost:5173"];
+  : ["http://localhost:5173"]
+).map((origin) => origin.trim().replace(/\/$/, ""));
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // 允许无 origin 的请求（如移动应用或 Postman）
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
+      const normalized = origin.replace(/\/$/, "");
+      if (allowedOrigins.includes(normalized)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
