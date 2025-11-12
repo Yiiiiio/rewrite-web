@@ -49,19 +49,41 @@ body {
 
 .app-main {
   flex: 1;
-  display: grid;
-  grid-template-columns: 320px 1fr 320px;
+  display: flex;
   gap: 24px;
   padding: 24px 40px 40px;
+  align-items: flex-start;
 }
 
 .settings-panel,
 .history-panel,
-.panel {
+.panel,
+.history-wrapper {
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(15, 24, 64, 0.08);
   padding: 20px;
+}
+
+.history-wrapper {
+  width: 300px;
+  min-width: 280px;
+  max-height: calc(100vh - 180px);
+  overflow: hidden;
+}
+
+.history-wrapper .history-panel {
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.workspace-section {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
 }
 
 .settings-panel h2,
@@ -316,30 +338,33 @@ body {
   color: #7b86a1;
 }
 
+.history-wrapper .history-panel ul {
+  margin-top: 0;
+}
+
 @media (max-width: 1280px) {
   .app-main {
-    grid-template-columns: 280px 1fr;
-    grid-template-areas:
-      "settings workspace"
-      "history workspace";
+    flex-direction: column;
   }
-  .history-panel {
-    grid-column: 1 / span 2;
-    order: 3;
-  }
-  .workspace-grid {
+  .workspace-section {
     grid-template-columns: 1fr;
+  }
+  .history-wrapper {
+    width: 100%;
+    min-width: auto;
+    max-height: none;
+    padding: 0;
+  }
+  .history-wrapper .history-panel {
+    padding: 20px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(15, 24, 64, 0.08);
   }
 }
 
 @media (max-width: 960px) {
   .app-main {
-    grid-template-columns: 1fr;
     padding: 24px;
-  }
-  .settings-panel,
-  .history-panel {
-    order: initial;
   }
 }
 

@@ -17,9 +17,6 @@ export default function App() {
       <header className="app-header">
         <div>
           <h1>Paperrewrite</h1>
-          <p className="app-subtitle">
-            AI 论文改写工具 - 选择改写级别，输入原文后获取符合合规要求的改写建议。
-          </p>
         </div>
         <span className="badge beta">Beta</span>
       </header>
@@ -63,7 +60,9 @@ export default function App() {
             onReset={() => rewrite.reset()}
           />
         </section>
-        <HistoryPanel entries={rewrite.history} />
+        <aside className="history-wrapper">
+          <HistoryPanel entries={rewrite.history} />
+        </aside>
       </main>
     </div>
   );
