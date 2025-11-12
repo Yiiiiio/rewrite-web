@@ -38,9 +38,7 @@ export function HistoryPanel({ entries }: Props) {
                 <span>{entry.resultPreview}...</span>
               </p>
             </div>
-            <span className="history-stats">
-              字数 {entry.wordCount} · 任务 {entry.id.slice(0, 8)}
-            </span>
+            <span className="history-stats">字数 {entry.wordCount}</span>
           </li>
         ))}
       </ul>
