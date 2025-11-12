@@ -84,7 +84,8 @@ function buildPrompt(payload: RewriteRequestBody): string {
 - 使用更常见的词汇和句式；
 - 在保持清晰的同时，加入少量自然语气（例如 like、actually、also、I think）；
 - 让句子结构顺畅，不出现明显的非母语痕迹；
-- 保持原文含义不变。`,
+- 保持原文含义不变；
+- 输出语言必须与原文一致，不要翻译。`,
     balance: `请改写下面的文字，让它更像人类写作而非 AI 生成。
 要求：
 - 语言自然流畅，不必完美；
@@ -92,7 +93,8 @@ function buildPrompt(payload: RewriteRequestBody): string {
 - 可以有轻微重复或不均匀的句式；
 - 让长句和短句交替出现；
 - 插入少量“人类语气词”，如 actually、in fact、I think、maybe；
-- 核心信息保持不变。`,
+- 核心信息保持不变；
+- 输出语言必须与原文一致，不要翻译。`,
     heavy: `请深度改写下面的文字，让它几乎看不出 AI 痕迹。
 要求：
 - 用人类思维方式表达，可以稍显随意，甚至出现轻微的逻辑跳跃；
@@ -100,7 +102,8 @@ function buildPrompt(payload: RewriteRequestBody): string {
 - 使用简单自然的词汇，多用口语表达，尽量少用 moreover、thus、therefore 等词；
 - 可以保留少量语法不对称或轻微的非母语用法；
 - 模仿普通作者或硕士生写作的语感；
-- 让整段文字读起来像“思考中写”，而不是模型直接生成。`
+- 让整段文字读起来像“思考中写”，而不是模型直接生成；
+- 输出语言必须与原文一致，不要翻译。`
   };
 
   return `请按照以下要求改写文本：
